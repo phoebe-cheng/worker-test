@@ -1,0 +1,17 @@
+{
+  "name": "PWA-TEST",
+  "short_name": "TEST",
+  "icons": [
+    {
+      "src": "./assets/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "start_url": "/serviceWorker/index.html",
+  "display": "standalone",
+  "theme_color": "#f00",
+  "background_color": "#ff0",
+  "id": "TEST"
+}

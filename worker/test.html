@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>web worker</title>
+  </head>
+
+  <script>
+    // 测试terminate / self.close
+    const worker = new Worker('worker.js');
+    const obj = { ccc: 1 };
+    worker.onmessage = (e) => {
+      console.log('[主线程] message:', e.data);
+      const obj1 = e.data;
+
+      console.log("obj === obj1", obj === obj1);
+      // worker.terminate();
+    };
+
+    worker.postMessage(obj);
+
+    const number = 2;
+    const data = 10;
+
+    // 多线程测试
+    const workerTest = () => {
+      console.log('%c 开始多线程测试 ', 'color:#fff; background:#00897b ');
+
+      console.time('worker多线程执行时间');
+
+      const workerList = [];
+
+      for (let i = 0; i < number; i++) {
+        const myWorker = new Worker('worker.js');
+
+        myWorker.postMessage({
+          function: 'fb',
+          data,
+        });
+
+        const workerItem = new Promise((resolve, reject) => {
+          myWorker.onmessage = (e) => {
+            resolve(e.data);
+          };
+        });
+
+        workerList.push({ worker: myWorker, promise: workerItem });
+      }
+
+      Promise.all(workerList.map((item) => item.promise)).then((res) => {
+        console.timeEnd('worker多线程执行时间');
+
+        // Terminate workers after all have completed
+        workerList.forEach(({ worker }) => {
+          worker.terminate();
+        });
+      });
+    };
+
+    const singleTest = () => {
+      console.log('%c 开始单线程测试 ', 'color:#fff; background:#00897b ');
+      function fb(n) {
+        if (n === 1 || n === 2) {
+          return 1;
+        }
+        return fb(n - 1) + fb(n - 2);
+      }
+      console.time('单线程执行时间');
+      for (let i = 0; i < number; i++) {
+        const res = fb(data);
+        console.log({
+          data: res,
+          name: 'single test',
+        });
+      }
+      console.timeEnd('单线程执行时间');
+    };
+  </script>
+
+  <body>
+    <button onclick="singleTest()">单线程测试</button>
+    <button onclick="workerTest()">多线程测试</button>
+  </body>
+</html>

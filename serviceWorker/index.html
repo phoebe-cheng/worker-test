@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Service worker</title>
+    <link rel="manifest" href="./manifest.json" />
+    <style>
+      img {
+        width: 500px;
+        height: 400px;
+      }
+    </style>
+    <script>
+      window.onload = async () => {
+        if ('serviceWorker' in navigator) {
+          try {
+            const registration = await navigator.serviceWorker.register('./service.worker.js');
+
+            console.log('[html]Service Worker registered with scope:', registration);
+
+            registration.onupdatefound = () => {
+              const installingWorker = registration.installing;
+              if (!installingWorker) return;
+
+              installingWorker.onstatechange = () => {
+                if(installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  console.log('[html]will update.....')
+                }
+              }
+            };
+          } catch (e) {
+            // console.error('Service Worker registration failed:', error);
+          }
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <div id="root">hello world</div>
+    <img  src="./assets//logo.png" />
+  </body>
+</html>
